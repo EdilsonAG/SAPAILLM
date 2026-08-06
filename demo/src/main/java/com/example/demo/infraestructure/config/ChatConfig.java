@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.exec.CommandLine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -14,6 +15,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.example.demo.domain.service.TriagemAgentService;
 import com.example.demo.infraestructure.RedisChatMemoryStore;
+import com.example.demo.infraestructure.leader.PlaybookLoader;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
@@ -37,9 +39,16 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 
 @Configuration
 public class ChatConfig {
+
+        // private PlaybookLoader playbookLoader;
+
+        // public ChatConfig(PlaybookLoader playbookLoader){
+        //         this.playbookLoader = playbookLoader;
+        // }
         @Bean
         ChatModel chatModel() {
                 JsonObjectSchema schema = JsonObjectSchema.builder()
@@ -75,41 +84,34 @@ public class ChatConfig {
                                                                 .rootElement(schema)
                                                                 .build())
                                                 .build())
-                                                .supportedCapabilities(Set.of(Capability.RESPONSE_FORMAT_JSON_SCHEMA))
+                                .supportedCapabilities(Set.of(Capability.RESPONSE_FORMAT_JSON_SCHEMA))
                                 .timeout(Duration.ofMinutes(5))
                                 .logRequests(true)
                                 .logResponses(true)
                                 .build();
         }
 
-        // @Bean
-        // ContentRetriever contentRetriever() throws IOException {
-        //         EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
-        //         EmbeddingStore<TextSegment> store = new InMemoryEmbeddingStore<>();
+        public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingStore<TextSegment>  embeddingStore, EmbeddingModel embeddingModel){
+                return EmbeddingStoreIngestor.builder()
+                        .embeddingStore(embeddingStore)
+                        .embeddingModel(embeddingModel)
+                        .build();
+        }
 
-        //         List<Document> docs = new ArrayList<>();
-        //         var resources = new PathMatchingResourcePatternResolver()
-        //                         .getResources("classpath:playbooks/*.md");
-        //         for (Resource r : resources) {
-        //                 String text = new String(r.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        //                 docs.add(Document.from(text, Metadata.from("file", r.getFilename())));
-        //         }
-
-        //         EmbeddingStoreIngestor.builder()
-        //                         .embeddingStore(store)
-        //                         .embeddingModel(embeddingModel)
-        //                         // 1 playbook = 1 segmento (não quebrar no meio dos campos obrigatórios)
-        //                         .documentSplitter(DocumentSplitters.recursive(2000, 0))
-        //                         .build()
-        //                         .ingest(docs);
-
-        //         return EmbeddingStoreContentRetriever.builder()
-        //                         .embeddingStore(store)
-        //                         .embeddingModel(embeddingModel)
-        //                         .maxResults(2)
-        //                         .minScore(0.4)
-        //                         .build();
-        // }
+       
+        @Bean
+        public EmbeddingStore<TextSegment> embeddingStore() {
+                return PgVectorEmbeddingStore.builder()
+                                .host("localhost")
+                                .port(5432)
+                                .database("vectordb")
+                                .user("postgres")
+                                .password("postgres")
+                                .table("playbooks_embeddings")
+                                .dimension(384) // OBRIGATÓRIO bater com o modelo — AllMiniLmL6V2 gera vetor de 384
+                                                // dimensões
+                                .build();
+        }
 
         @Bean
         public ChatMemoryProvider chatMemoryProvider(RedisChatMemoryStore store) {
@@ -119,6 +121,41 @@ public class ChatConfig {
                                 .chatMemoryStore(store)
                                 .build();
         }
+
+        @Bean
+        EmbeddingModel embeddingModel() {
+                return new AllMiniLmL6V2EmbeddingModel();
+        }
+
+        // @Bean
+        // ContentRetriever contentRetriever() throws IOException {
+        // EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+        // EmbeddingStore<TextSegment> store = new InMemoryEmbeddingStore<>();
+
+        // List<Document> docs = new ArrayList<>();
+        // var resources = new PathMatchingResourcePatternResolver()
+        // .getResources("classpath:playbooks/*.md");
+        // for (Resource r : resources) {
+        // String text = new String(r.getInputStream().readAllBytes(),
+        // StandardCharsets.UTF_8);
+        // docs.add(Document.from(text, Metadata.from("file", r.getFilename())));
+        // }
+
+        // EmbeddingStoreIngestor.builder()
+        // .embeddingStore(store)
+        // .embeddingModel(embeddingModel)
+        // // 1 playbook = 1 segmento (não quebrar no meio dos campos obrigatórios)
+        // .documentSplitter(DocumentSplitters.recursive(2000, 0))
+        // .build()
+        // .ingest(docs);
+
+        // return EmbeddingStoreContentRetriever.builder()
+        // .embeddingStore(store)
+        // .embeddingModel(embeddingModel)
+        // .maxResults(2)
+        // .minScore(0.4)
+        // .build();
+        // }
 
         // @Bean
         // TriagemAgentService triagemAgent(ChatModel chatModel,
