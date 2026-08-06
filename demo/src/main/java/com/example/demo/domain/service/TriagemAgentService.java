@@ -12,13 +12,13 @@ import dev.langchain4j.service.spring.AiServiceWiringMode;
 @AiService(
     wiringMode = AiServiceWiringMode.EXPLICIT,
     chatModel = "chatModel",
-    chatMemoryProvider = "chatMemoryProvider"
-    // contentRetriever REMOVIDO
+    chatMemoryProvider = "chatMemoryProvider",
+    retrievalAugmentor = "retrievalAugmentor"
 )
 public interface TriagemAgentService {
 
     @SystemMessage(fromResource = "/prompts/triagem.txt")
     ResponseIA chat(@MemoryId String sessionId,
-                    @V("playbooks") String playbooks,
+                    //@V("playbooks") String playbooks,
                     @UserMessage String message);
 }

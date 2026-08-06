@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.exec.CommandLine;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -33,8 +34,11 @@ import dev.langchain4j.model.chat.request.json.JsonStringSchema;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.rag.DefaultRetrievalAugmentor;
+import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
+import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
@@ -44,11 +48,12 @@ import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 @Configuration
 public class ChatConfig {
 
-        // private PlaybookLoader playbookLoader;
+        private PlaybookLoader playbookLoader;
 
-        // public ChatConfig(PlaybookLoader playbookLoader){
-        //         this.playbookLoader = playbookLoader;
-        // }
+        public ChatConfig(PlaybookLoader playbookLoader) {
+                this.playbookLoader = playbookLoader;
+        }
+
         @Bean
         ChatModel chatModel() {
                 JsonObjectSchema schema = JsonObjectSchema.builder()
@@ -91,14 +96,33 @@ public class ChatConfig {
                                 .build();
         }
 
-        public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingStore<TextSegment>  embeddingStore, EmbeddingModel embeddingModel){
+        @Bean
+        public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingStore<TextSegment> embeddingStore,
+                        EmbeddingModel embeddingModel) {
                 return EmbeddingStoreIngestor.builder()
-                        .embeddingStore(embeddingStore)
-                        .embeddingModel(embeddingModel)
-                        .build();
+                                .embeddingStore(embeddingStore)
+                                .embeddingModel(embeddingModel)
+                                .documentSplitter(DocumentSplitters.recursive(200, 0))
+                                .build();
         }
 
-       
+        @Bean
+        CommandLineRunner ingestPlaybooks(EmbeddingStoreIngestor embeddingStoreIngestor) throws IOException {
+                return args -> {
+                        List<Document> docs = new ArrayList<>();
+                        var resources = new PathMatchingResourcePatternResolver()
+                                        .getResources("classpath:playbooks/*.md");
+
+                        for (Resource r : resources) {
+                                String text = new String(r.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                                docs.add(Document.from(text, Metadata.from("file", r.getFilename())));
+                        }
+
+                        embeddingStoreIngestor.ingest(docs);
+                        System.out.println("Playbooks ingeridos: " + docs.size());
+                };
+        }
+
         @Bean
         public EmbeddingStore<TextSegment> embeddingStore() {
                 return PgVectorEmbeddingStore.builder()
@@ -113,7 +137,7 @@ public class ChatConfig {
                                 .build();
         }
 
-        @Bean
+        @Bean 
         public ChatMemoryProvider chatMemoryProvider(RedisChatMemoryStore store) {
                 return memoryId -> MessageWindowChatMemory.builder()
                                 .id(memoryId)
@@ -125,6 +149,24 @@ public class ChatConfig {
         @Bean
         EmbeddingModel embeddingModel() {
                 return new AllMiniLmL6V2EmbeddingModel();
+        }
+
+        @Bean
+        ContentRetriever contentRetriever(EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel) {
+                return EmbeddingStoreContentRetriever.builder()
+                                .embeddingStore(embeddingStore)
+                                .embeddingModel(embeddingModel)
+                                .maxResults(2) // pega os 2 pedaços mais parecidos com a pergunta
+                                .minScore(0.4) // ignora resultado se a similaridade for muito baixa
+                                .build();
+        }
+
+        @Bean
+        RetrievalAugmentor retrievalAugmentor(ChatModel chatModel, ContentRetriever contentRetriever) {
+                return DefaultRetrievalAugmentor.builder()
+                                .queryTransformer(new CompressingQueryTransformer(chatModel))
+                                .contentRetriever(contentRetriever)
+                                .build();
         }
 
         // @Bean

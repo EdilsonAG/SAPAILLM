@@ -15,17 +15,15 @@ import com.example.demo.infraestructure.leader.PlaybookLoader;
 @RequestMapping("/chat")
 public class ChatController {
     private final TriagemAgentService agent;
-    private final PlaybookLoader playbookLoader;
-
-    public ChatController(TriagemAgentService agent, PlaybookLoader playbookLoader) {
+ 
+    public ChatController(TriagemAgentService agent) {
          this.agent = agent; 
-         this.playbookLoader = playbookLoader;
-         }
+          }
 
     @PostMapping
     public ResponseIA chat(@RequestBody ChatRequest req) {
         System.out.println("chegou");
-            ResponseIA r = agent.chat(req.session(), playbookLoader.get(), req.message());
+            ResponseIA r = agent.chat(req.session(), req.message());
 
          if (r.status() != CriarTicketStatus.PRONTO) {
             return new ResponseIA(r.resposta(), r.status(), r.description(), r.longText(), null, null);
