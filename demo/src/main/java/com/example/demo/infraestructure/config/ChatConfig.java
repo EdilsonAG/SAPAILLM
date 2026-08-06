@@ -102,13 +102,25 @@ public class ChatConfig {
                 return EmbeddingStoreIngestor.builder()
                                 .embeddingStore(embeddingStore)
                                 .embeddingModel(embeddingModel)
-                                .documentSplitter(DocumentSplitters.recursive(200, 0))
+                                .documentSplitter(DocumentSplitters.recursive(1000, 0))
                                 .build();
         }
 
         @Bean
-        CommandLineRunner ingestPlaybooks(EmbeddingStoreIngestor embeddingStoreIngestor) throws IOException {
+        CommandLineRunner ingestPlaybooks(EmbeddingStoreIngestor embeddingStoreIngestor,
+                        EmbeddingStore<TextSegment> embeddingStore,
+                        EmbeddingModel embeddingModel) throws IOException {
                 return args -> {
+
+                        // só ingere se a tabela estiver vazia
+                        var probe = embeddingStore
+                                        .search(dev.langchain4j.store.embedding.EmbeddingSearchRequest.builder()
+                                                        .queryEmbedding(embeddingModel.embed("probe").content())
+                                                        .maxResults(1).build());
+                        if (!probe.matches().isEmpty()) {
+                                System.out.println("Playbooks já ingeridos, pulando.");
+                                return;
+                        }
                         List<Document> docs = new ArrayList<>();
                         var resources = new PathMatchingResourcePatternResolver()
                                         .getResources("classpath:playbooks/*.md");
@@ -137,7 +149,7 @@ public class ChatConfig {
                                 .build();
         }
 
-        @Bean 
+        @Bean
         public ChatMemoryProvider chatMemoryProvider(RedisChatMemoryStore store) {
                 return memoryId -> MessageWindowChatMemory.builder()
                                 .id(memoryId)
