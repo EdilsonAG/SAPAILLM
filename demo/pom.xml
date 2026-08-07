@@ -7,87 +7,62 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.1.0</version>
 		<relativePath />
-		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name />
-	<description />
-	<url />
-	<licenses>
-		<license />
-	</licenses>
-	<developers>
-		<developer />
-	</developers>
-	<scm>
-		<connection />
-		<developerConnection />
-		<tag />
-		<url />
-	</scm>
-	<properties>
-		<langchain4j.version>1.18.0-beta28</langchain4j.version>
 
+	<properties>
 		<java.version>25</java.version>
 	</properties>
-	<dependencies>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.langchain4j</groupId>
+				<artifactId>langchain4j-bom</artifactId>
+				<version>1.18.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
 
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-google-ai-gemini</artifactId>
-			<version>1.17.2</version>
 		</dependency>
+
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-pgvector</artifactId>
-			<version>1.18.0-beta28</version>
 		</dependency>
-
-		<!-- <dependency>
-			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-open-ai</artifactId>
-			<version>1.18.1</version>
-		</dependency> -->
 
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
-			<version>1.18.0-beta28</version>
+			<artifactId>langchain4j-ollama</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-spring-boot4-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-document-parser-apache-tika</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<!-- Integração com Ollama: cria automaticamente o bean ChatModel -->
-		<!-- <dependency>
-			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-ollama-spring-boot4-starter</artifactId>
-			<version>${langchain4j.version}</version>
-		</dependency> -->
-
-
-		<!-- Habilita a anotaçã o @AiService (interfaces de chat declarativas) -->
-		<dependency>
-			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-spring-boot4-starter</artifactId>
-			<version>${langchain4j.version}</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-document-parser-apache-tika</artifactId>
-			<version>1.18.0-beta28</version>
 		</dependency>
 
 		<dependency>
@@ -95,13 +70,11 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency> 
 	</dependencies>
 
 	<build>

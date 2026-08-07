@@ -33,8 +33,9 @@ import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
+//import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 //import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
@@ -121,7 +122,7 @@ public class ChatConfig {
 
                 return GoogleAiGeminiChatModel.builder()
                                 .apiKey(GEMINIKEY) // vem de @Value("${gemini.api-key}")
-                                .modelName("gemini-2.5-flash")
+                                .modelName("gemini-3.5-flash")
                                 .temperature(1.0)
                                 .timeout(Duration.ofMinutes(2))
                                 .logRequestsAndResponses(true)
@@ -177,7 +178,7 @@ public class ChatConfig {
                                 .user("postgres")
                                 .password("postgres")
                                 .table("playbooks_embeddings")
-                                .dimension(384) // OBRIGATÓRIO bater com o modelo — AllMiniLmL6V2 gera vetor de 384
+                                .dimension(1024) // OBRIGATÓRIO bater com o modelo — AllMiniLmL6V2 gera vetor de 384
                                                 // dimensões
                                 .build();
         }
@@ -191,9 +192,19 @@ public class ChatConfig {
                                 .build();
         }
 
+        // @Bean
+        // EmbeddingModel embeddingModel() {
+        // return new AllMiniLmL6V2EmbeddingModel();
+        // }
+        // MiniLM-L6-v2 → leu quase só inglês.
+        // bge-m3 → leu ~100 idiomas, incluindo português.
         @Bean
         EmbeddingModel embeddingModel() {
-                return new AllMiniLmL6V2EmbeddingModel();
+                return OllamaEmbeddingModel.builder()
+                                .baseUrl("http://localhost:11434")
+                                .modelName("bge-m3")
+                                .timeout(Duration.ofMinutes(3))
+                                .build();
         }
 
         @Bean
