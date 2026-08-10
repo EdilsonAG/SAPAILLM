@@ -17,7 +17,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.example.demo.domain.service.TriagemAgentService;
 import com.example.demo.infraestructure.RedisChatMemoryStore;
-import com.example.demo.infraestructure.leader.PlaybookLoader;
+//import com.example.demo.infraestructure.leader.PlaybookLoader;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
@@ -51,7 +51,7 @@ import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 @Configuration
 public class ChatConfig {
 
-        private PlaybookLoader playbookLoader;
+        //private PlaybookLoader playbookLoader;
 
         @Value("${openai.api-key}")
         private String apiKey;
@@ -59,9 +59,9 @@ public class ChatConfig {
         @Value("${gemini.api-key}")
         private String GEMINIKEY;
 
-        public ChatConfig(PlaybookLoader playbookLoader) {
-                this.playbookLoader = playbookLoader;
-        }
+        // public ChatConfig(PlaybookLoader playbookLoader) {
+        //         this.playbookLoader = playbookLoader;
+        // }
 
         @Bean
         ChatModel chatModel() {
@@ -122,7 +122,7 @@ public class ChatConfig {
 
                 return GoogleAiGeminiChatModel.builder()
                                 .apiKey(GEMINIKEY) // vem de @Value("${gemini.api-key}")
-                                .modelName("gemini-3.5-flash")
+                                .modelName("gemini-2.5-flash")
                                 .temperature(1.0)
                                 .timeout(Duration.ofMinutes(2))
                                 .logRequestsAndResponses(true)

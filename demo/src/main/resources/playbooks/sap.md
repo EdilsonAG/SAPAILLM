@@ -1,13 +1,23 @@
 # Categoria: SAP
-Palavras-chave: sap, gui, transação, dump, logon, s4, ecc
+Palavras-chave: sap, gui, transação, dump, logon, s4, ecc, zsd, me21n, va01, migo
 
-Campos obrigatórios:
-- Código da transação (ex: ME21N, VA01, MIGO)
-- Ambiente (Produção / Qualidade / Desenvolvimento)
-- Mensagem de erro exata ou código do dump
-- Quando começou (data/hora aproximada)
-- Acontece com outros usuários? (sim/não/não sei)
-- Usuário SAP (login)
+## Objetivo da triagem
+Ter o suficiente para o analista REPRODUZIR o problema.
 
-type: SAP
-priority: ALTA se produção parada, senão MEDIA
+## Sempre necessário
+- Código da transação
+- O que aconteceu (mensagem de erro ou comportamento inesperado)
+- Um exemplo concreto (nº do pedido, documento, material)
+
+## Assumir por padrão (não perguntar)
+- Ambiente = Produção 
+- Usuário SAP = o usuário que abriu o chamado
+
+## Perguntar SÓ se aplicável
+- Ambiente: só se o usuário citar QAS/DEV, ou for do time de TI/consultoria
+- Passo a passo na tela: só se o relato não deixa claro o que ele estava fazendo
+- Acontece com outros usuários: só se parecer falha sistêmica (todos travados, dump)
+- Quando começou: só se o ususário disser que "antes funcionava"
+
+## Já é suficiente quando
+O relato contém transação + erro + exemplo concreto.

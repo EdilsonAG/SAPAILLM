@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.dto.CriarTicketStatus;
 import com.example.demo.domain.dto.ResponseIA;
 import com.example.demo.domain.service.TriagemAgentService;
-import com.example.demo.infraestructure.leader.PlaybookLoader;
+//import com.example.demo.infraestructure.leader.PlaybookLoader;
 
  
 @RestController
