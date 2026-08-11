@@ -35,6 +35,7 @@ import dev.langchain4j.model.chat.request.json.JsonStringSchema;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 //import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 //import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
@@ -51,16 +52,16 @@ import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 @Configuration
 public class ChatConfig {
 
-        //private PlaybookLoader playbookLoader;
+        // private PlaybookLoader playbookLoader;
 
-        @Value("${openai.api-key}")
-        private String apiKey;
+        // @Value("${openai.api-key}")
+        // private String apiKey;
 
         @Value("${gemini.api-key}")
         private String GEMINIKEY;
 
         // public ChatConfig(PlaybookLoader playbookLoader) {
-        //         this.playbookLoader = playbookLoader;
+        // this.playbookLoader = playbookLoader;
         // }
 
         @Bean
@@ -86,23 +87,23 @@ public class ChatConfig {
                                 .build();
 
                 // return OllamaChatModel.builder()
-                // .baseUrl("http://localhost:11434")
-                // .modelName("qwen2.5:7b")
-                // .temperature(0.2)
-                // .numCtx(4096)
-                // .numPredict(1024)
-                // .responseFormat(ResponseFormat.builder()
-                // .type(ResponseFormatType.JSON)
-                // .jsonSchema(JsonSchema.builder()
-                // .name("ResponseIA")
-                // .rootElement(schema)
-                // .build())
-                // .build())
-                // .supportedCapabilities(Set.of(Capability.RESPONSE_FORMAT_JSON_SCHEMA))
-                // .timeout(Duration.ofMinutes(5))
-                // .logRequests(true)
-                // .logResponses(true)
-                // .build();
+                //                 .baseUrl("http://localhost:11434")
+                //                 .modelName("qwen2.5:7b")
+                //                 .temperature(0.2)
+                //                 .numCtx(4096)
+                //                 .numPredict(1024)
+                //                 .responseFormat(ResponseFormat.builder()
+                //                                 .type(ResponseFormatType.JSON)
+                //                                 .jsonSchema(JsonSchema.builder()
+                //                                                 .name("ResponseIA")
+                //                                                 .rootElement(schema)
+                //                                                 .build())
+                //                                 .build())
+                //                 .supportedCapabilities(Set.of(Capability.RESPONSE_FORMAT_JSON_SCHEMA))
+                //                 .timeout(Duration.ofMinutes(5))
+                //                 .logRequests(true)
+                //                 .logResponses(true)
+                //                 .build();
 
                 // return OpenAiChatModel.builder()
                 // .apiKey(apiKey)
@@ -121,12 +122,12 @@ public class ChatConfig {
                 // .build();
 
                 return GoogleAiGeminiChatModel.builder()
-                                .apiKey(GEMINIKEY) // vem de @Value("${gemini.api-key}")
-                                .modelName("gemini-3.1-flash-lite")
-                                .temperature(1.0)
-                                .timeout(Duration.ofMinutes(2))
-                                .logRequestsAndResponses(true)
-                                .build();
+                .apiKey(GEMINIKEY) // vem de @Value("${gemini.api-key}")
+                .modelName("gemini-3.1-flash-lite")
+                .temperature(1.0)
+                .timeout(Duration.ofMinutes(2))
+                .logRequestsAndResponses(true)
+                .build();
 
         }
 
@@ -179,7 +180,7 @@ public class ChatConfig {
                                 .password("postgres")
                                 .table("playbooks_embeddings")
                                 .dimension(1024) // OBRIGATÓRIO bater com o modelo — AllMiniLmL6V2 gera vetor de 384
-                                                // dimensões
+                                                 // dimensões
                                 .build();
         }
 
