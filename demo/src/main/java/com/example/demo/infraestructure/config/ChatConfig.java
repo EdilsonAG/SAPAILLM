@@ -122,7 +122,7 @@ public class ChatConfig {
 
                 return GoogleAiGeminiChatModel.builder()
                                 .apiKey(GEMINIKEY) // vem de @Value("${gemini.api-key}")
-                                .modelName("gemini-2.5-flash")
+                                .modelName("gemini-3.1-flash-lite")
                                 .temperature(1.0)
                                 .timeout(Duration.ofMinutes(2))
                                 .logRequestsAndResponses(true)

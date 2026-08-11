@@ -14,7 +14,8 @@ public class WebConfig implements WebMvcConfigurer{
                 .allowedOriginPatterns(
                     "http://localhost:5173",
                     "http://192.168.0.3:5173",
-                    "https://*.trycloudflare.com"
+                    "https://*.trycloudflare.com",
+                    "http://10.99*"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true);
